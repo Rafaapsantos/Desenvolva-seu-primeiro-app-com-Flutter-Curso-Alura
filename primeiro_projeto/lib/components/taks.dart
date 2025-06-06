@@ -5,15 +5,22 @@ class Tasks extends StatefulWidget {
   final String nome;
   final String foto;
   final int dificuldade;
-  const Tasks(this.nome, this.foto, this.dificuldade, {super.key});
+  Tasks(this.nome, this.foto, this.dificuldade, {super.key});
+  int nivel = 0;
 
   @override
   State<Tasks> createState() => _TasksState();
 }
 
 class _TasksState extends State<Tasks> {
-  int nivel = 0;
   int maestria = 0;
+
+  bool assetsOrNetwork() {
+    if (widget.foto.contains('http')) {
+      return false;
+    }
+    return true;
+  }
 
   final List<Color> levelColors = [
     Colors.blue,
@@ -66,7 +73,13 @@ class _TasksState extends State<Tasks> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: Image.asset(widget.foto, fit: BoxFit.fitHeight),
+                        child:
+                            assetsOrNetwork()
+                                ? Image.asset(
+                                  widget.foto,
+                                  fit: BoxFit.fitHeight,
+                                )
+                                : Image.network(widget.foto, fit: BoxFit.cover),
                       ),
                     ),
                     Column(
@@ -97,11 +110,11 @@ class _TasksState extends State<Tasks> {
                               int maxLevelPorDificuldade =
                                   widget.dificuldade * 10;
 
-                              if (nivel < maxLevelPorDificuldade) {
-                                nivel++;
+                              if (widget.nivel < maxLevelPorDificuldade) {
+                                widget.nivel++;
                               } else {
                                 maestria++;
-                                nivel = 1;
+                                widget.nivel = 1;
                               }
                             });
                           },
@@ -143,7 +156,7 @@ class _TasksState extends State<Tasks> {
                         color: Colors.white,
                         value:
                             (widget.dificuldade > 0)
-                                ? nivel / (widget.dificuldade * 10)
+                                ? widget.nivel / (widget.dificuldade * 10)
                                 : 1,
                       ),
                     ),
@@ -151,7 +164,7 @@ class _TasksState extends State<Tasks> {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Text(
-                      'Nivel: $nivel',
+                      'Nivel: ${widget.nivel}',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
