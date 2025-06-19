@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:primeiro_projeto/components/taks.dart';
+import 'package:primeiro_projeto/data/task_dao.dart';
 import 'package:primeiro_projeto/data/task_inherited.dart';
 import 'package:primeiro_projeto/screens/form_screen.dart';
 
@@ -63,15 +65,74 @@ class _InitialScreenState extends State<InitialScreen> {
             child: IconButton(
               onPressed: () {
                 refreshLevelPage();
+                setState(() {});
               },
               icon: Icon(Icons.loop, color: Colors.white),
             ),
           ),
         ],
       ),
-      body: ListView(
+      body: Padding(
         padding: EdgeInsets.only(top: 8, bottom: 90),
-        children: TaskInherited.of(context).taskList,
+        child: FutureBuilder<List<Tasks>>(
+          future: TaskDao().findAll(),
+          builder: (context, snapshot) {
+            List<Tasks>? items = snapshot.data;
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+                return Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text('Carregando '),
+                    ],
+                  ),
+                );
+              case ConnectionState.waiting:
+                return Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text('Carregando '),
+                    ],
+                  ),
+                );
+              case ConnectionState.active:
+                return Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text('Carregando '),
+                    ],
+                  ),
+                );
+              case ConnectionState.done:
+                if (snapshot.hasData && items != null) {
+                  if (items.isNotEmpty) {
+                    return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final Tasks tarefa = items[index];
+                        return tarefa;
+                      },
+                    );
+                  }
+                  return Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.error_outline, size: 128),
+                        Text(
+                          'Não há nenhuma tarefa',
+                          style: TextStyle(fontSize: 32),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return Text('Erro ao carregar tarefas');
+            }
+          },
+        ),
       ),
 
       floatingActionButton: FloatingActionButton(
@@ -81,6 +142,10 @@ class _InitialScreenState extends State<InitialScreen> {
             MaterialPageRoute(
               builder: (contextNew) => FormScreen(taskContext: context),
             ),
+          ).then(
+            (value) => setState(() {
+              print('Recarregando a tela inicial');
+            }),
           );
         },
         backgroundColor: Colors.blue,

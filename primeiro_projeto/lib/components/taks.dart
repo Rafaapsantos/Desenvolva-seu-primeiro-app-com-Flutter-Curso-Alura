@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:primeiro_projeto/components/difficulty.dart';
+import 'package:primeiro_projeto/data/task_dao.dart';
 
 class Tasks extends StatefulWidget {
   final String nome;
@@ -105,6 +106,9 @@ class _TasksState extends State<Tasks> {
                         height: 64,
                         width: 64,
                         child: ElevatedButton(
+                          onLongPress: () {
+                            TaskDao().delete(widget.nome);
+                          },
                           onPressed: () {
                             setState(() {
                               int maxLevelPorDificuldade =
